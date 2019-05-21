@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+{% block content %}
+<h4>Управление пользователями</h4>
+<div class="row">
+    <div class="col-6 mx-auto">
+        <form class="form-inline">
+            <div class="input-group mb-2 mr-sm-2">
+                <select id="firm_id" name="firm_id" class="form-control">
+                    <option value="-999">--- Выберите фирму ---</option>
+                    {% for firm in firms %}
+                    <option value="{{ firm.id }}">{{ firm.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button name="submit" type="submit" class="btn btn-primary">Поиск</button>
+    </div>
+    </form>
+</div>
+</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Логин</th>
+            <th scope="col">Мыло</th>
+            <th scope="col">ФИО</th>
+            <th scope="col">Фирма</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.first_name }} {{ user.middle_name }} {{ user.last_name }}</td>
+            <td>{{ user.title }}</td>
+        </tr>
+        {% else %}
+        {# Блять ну как так то! #}
+        <tr>
+            <td colspan="5"><em>Пользователей не найдено</em></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

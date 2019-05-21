@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Добро пожаловать!{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if not g.user %}
+<p>
+    Это сайт сервисных заявок ООО "Моя Оборона". <a href="{{ url_for('auth.login') }}">Войдите</a>, чтобы продолжить!
+</p>
+{% else %}
+<p>
+  Кажется, все в порядке! Вы успешно вошли в систему.
+</p>
+<p>
+  <a href="#" class="btn btn-success">Мои заявки</a> / <a href="{{ url_for('tickets.submit') }}" class="btn btn-primary">Оставить заявку</a>
+</p>
+{% if g.user.position == 'admin' %}
+  <p>
+    Вы являетесь администратором системы, Ваши функции администратора:
+  </p>
+  <p>
+      <a href="#" class="btn btn-success">Настройки системы</a> / <a href="#" class="btn btn-primary">Пользователи</a>
+  </p>
+  <p>
+    На данный момент ожидают активации {{ inactive_users|length }} пользователь
+  </p>
+  <ul>
+    {% for user in inactive_users %}
+    <li>
+      {{ user.username|e }}
+      <form method="POST" action="{{ url_for('admin.activate') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <input type="hidden" name="from" value="tickets.index">
+          <input type="hidden" name="userid" value="{{ user.id|e }}">
+          <button class="btn btn-sm btn-link" type="submit">Активировать</button>
+      </form>
+    </li>
+    {% else %}
+    <li><em>Нет неактивных пользователей! Хорошая работа!</em></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endif %}
+{% endblock %}
