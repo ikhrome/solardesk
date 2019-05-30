@@ -10,6 +10,7 @@ from solar.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
@@ -21,6 +22,7 @@ def load_logged_in_user():
             'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
 
+
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     from .forms.login import RegisterForm
@@ -28,9 +30,9 @@ def register():
     if form.validate_on_submit():
         db = get_db()
         error = None
-        
+
         if db.execute(
-            'SELECT id FROM user WHERE username = ?', (form.username.data,)
+                'SELECT id FROM user WHERE username = ?', (form.username.data,)
         ).fetchone() is not None:
             error = 'Пользователь {} уже существует!.'.format(form.username.data)
 
@@ -39,7 +41,7 @@ def register():
                 'INSERT INTO user (username, password, email, phone_number, first_name, middle_name, last_name)'
                 'VALUES (?, ?, ?, ?, ?, ?, ?)',
                 (
-                    form.username.data, 
+                    form.username.data,
                     generate_password_hash(form.password.data),
                     form.email.data,
                     form.phone_number.data,
@@ -52,6 +54,7 @@ def register():
             return redirect(url_for('auth.login'))
         flash(error)
     return render_template('auth/register.html', form=form)
+
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -70,8 +73,9 @@ def login():
         elif not check_password_hash(user['password'], form.password.data):
             error = 'Неправильный пароль'
         elif user['active'] == 0:
-            error = 'Данная учетная запись не была активирована администратором системы. Подождите, пока администратор активирует учетную запись'
-        
+            error = 'Данная учетная запись не была активирована администратором системы. Подождите, ' \
+                    'пока администратор активирует учетную запись '
+
         if error is None:
             session.clear()
             session['user_id'] = user['id']
@@ -80,10 +84,12 @@ def login():
         flash(error)
     return render_template('auth/login.html', form=form)
 
+
 @bp.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('tickets.index'))
+
 
 def login_required(view):
     @functools.wraps(view)
@@ -94,6 +100,7 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
 
 def for_admin(view):
     @functools.wraps(view)
